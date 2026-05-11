@@ -120,7 +120,10 @@ def _district_map(districts: list[str]) -> go.Figure:
             featureidkey="properties.NAME_1",
             colorscale=[[0, "#F2E7C8"], [0.35, "#D1B36A"], [0.7, "#7C9854"], [1, "#2F6B48"]],
             marker_line_color="#FFFFFF", marker_line_width=0.9,
-            colorbar=dict(title="HHs", thickness=10, len=0.72),
+            colorbar=dict(
+                title="HHs", thickness=10, len=0.6, x=0.98, xanchor="right",
+                y=0.5, bgcolor="rgba(255,255,255,0.78)", outlinewidth=0,
+            ),
             customdata=df[["Region", "Female-headed", "Male-headed"]],
             hovertemplate=(
                 "<b>%{location}</b><br>Region: %{customdata[0]}<br>"
@@ -132,10 +135,11 @@ def _district_map(districts: list[str]) -> go.Figure:
     )
     fig.update_geos(
         fitbounds="geojson", visible=False, bgcolor="rgba(255,255,255,0)",
-        showcountries=False, showcoastlines=False, showland=True, landcolor="#FAFBF7",
+        showcountries=False, showcoastlines=False, showland=False,
+        projection=dict(type="mercator"),
+        domain=dict(x=[0, 1], y=[0, 1]),
     )
-    fig.update_layout(height=520, margin=dict(l=0, r=0, t=0, b=0))
-    return apply_layout(fig)
+    return apply_layout(fig, height=380, margin=dict(l=0, r=0, t=0, b=0), showlegend=False)
 
 
 def _yield_chart(districts: list[str], genders: list[str]) -> go.Figure:
