@@ -1,0 +1,4 @@
+Django>=5.0
+plotly>=5.22
+pandas>=2.0
+gunicorn>=22.0

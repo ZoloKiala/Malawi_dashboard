@@ -1,0 +1,167 @@
+{% load static dashboard_extras %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }} | WASA Malawi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img class="iwmi-logo" src="{% static 'dashboard/iwmi-logo-white.png' %}" alt="International Water Management Institute (IWMI)">
+        <div>
+          <div class="rail-program">Soil and Water Accelerator</div>
+          <div class="rail-title">WASA Malawi</div>
+        </div>
+      </div>
+
+      <nav class="top-nav">
+        {% for page_name, label, href in nav_items %}
+          <a class="rail-link {% if active_page == page_name %}active{% endif %}" href="{{ href }}?{{ query_string }}">{{ label }}</a>
+        {% endfor %}
+      </nav>
+
+      <button class="filter-toggle" type="button" aria-controls="filter-panel" aria-expanded="false">Filters</button>
+    </header>
+
+    <section class="filter-panel" id="filter-panel" hidden>
+      <form class="filter-form" method="get">
+        <div class="filter-group">
+          <div class="filter-label">Filter districts</div>
+          <div class="filter-checklist">
+            {% for district in district_options %}
+              <label>
+                <input type="checkbox" name="district" value="{{ district }}" {% if district in selected_districts %}checked{% endif %}>
+                <span>{{ district }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">Household head gender</div>
+          <div class="filter-checklist compact">
+            {% for gender in gender_options %}
+              <label>
+                <input type="checkbox" name="gender" value="{{ gender }}" {% if gender in selected_genders %}checked{% endif %}>
+                <span>{{ gender }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="filter-button" type="submit">Apply filters</button>
+          <a class="reset-link" href="{{ request.path }}">Reset</a>
+        </div>
+      </form>
+    </section>
+
+    <main id="page-content">
+      <section class="dashboard-page">
+        <header class="dashboard-hero">
+          <div>
+            <div class="eyebrow">Program Soil and Water Accelerator</div>
+            <h1 class="dashboard-title">{{ title }}</h1>
+            <p class="dashboard-copy">{{ subtitle }}</p>
+          </div>
+          <div class="focus-pill">Current view: {{ focus }}</div>
+        </header>
+
+        {% if kpis %}
+          <section class="kpi-grid">
+            {% for kpi in kpis %}
+              <article class="kpi-card {{ kpi.tone }}">
+                <div class="kpi-label">{{ kpi.label }}</div>
+                <div class="kpi-value">{{ kpi.value }}</div>
+                <div class="kpi-sublabel">{{ kpi.sub }}</div>
+              </article>
+            {% endfor %}
+          </section>
+        {% endif %}
+
+        <section class="chart-grid">
+          {% for chart in charts %}
+            <article class="dashboard-card {{ chart.span|default:'' }}">
+              <header class="dashboard-card-header">
+                <h2 class="dashboard-card-title">{{ chart.title }}</h2>
+                <p class="dashboard-card-subtitle">{{ chart.subtitle }}</p>
+              </header>
+              <div class="dashboard-card-body">
+                <div id="{{ chart.id }}" class="plotly-panel"></div>
+                <script type="application/json" id="{{ chart.id }}-figure">{{ chart.figure|safe }}</script>
+              </div>
+            </article>
+          {% endfor %}
+        </section>
+
+        <article class="dashboard-card full">
+          <header class="dashboard-card-header">
+            <h2 class="dashboard-card-title">Data table</h2>
+            <p class="dashboard-card-subtitle">Filtered records for this page</p>
+          </header>
+          <div class="dashboard-card-body">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    {% for column in table.columns %}
+                      <th>{{ column }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in table.rows %}
+                    <tr>
+                      {% for column in table.columns %}
+                        <td>{{ row|get_item:column }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <footer class="dashboard-footnote">
+          <span class="footnote-label">Footnote</span>
+          <p>
+            Source data are from the WASA Malawi baseline report, April 2026.
+            On the spatial distribution map, muted districts are shown for geographic context and were not part of the filtered WASA baseline sample.
+          </p>
+        </footer>
+      </section>
+    </main>
+
+    <script>
+      const isCompactViewport = () => window.matchMedia("(max-width: 700px)").matches;
+      const plotConfig = { displayModeBar: !isCompactViewport(), displaylogo: false, responsive: true };
+      const filterToggle = document.querySelector(".filter-toggle");
+      const filterPanel = document.querySelector("#filter-panel");
+      const resizePlots = () => {
+        document.querySelectorAll(".plotly-panel").forEach((panel) => Plotly.Plots.resize(panel));
+      };
+
+      filterToggle.addEventListener("click", () => {
+        const expanded = filterToggle.getAttribute("aria-expanded") === "true";
+        filterToggle.setAttribute("aria-expanded", String(!expanded));
+        filterPanel.hidden = expanded;
+        window.setTimeout(resizePlots, 320);
+      });
+
+      document.querySelectorAll("[id$='-figure']").forEach((node) => {
+        const figure = JSON.parse(node.textContent);
+        const target = document.getElementById(node.id.replace("-figure", ""));
+        Plotly.newPlot(target, figure.data, figure.layout, plotConfig);
+      });
+      window.addEventListener("resize", resizePlots);
+    </script>
+  </body>
+</html>
