@@ -342,7 +342,7 @@ def overview(request):
         {"label": "Winter participation", "value": f"{winter:.1f}%", "sub": "average by district", "tone": "orange"},
     ]
     charts = [
-        {"id": "district-map", "title": "Spatial distribution", "subtitle": "Districts shaded by surveyed households", "figure": _district_map(districts), "span": "wide"},
+        {"id": "district-map", "title": "Spatial distribution", "subtitle": "Districts shaded by surveyed households. Muted districts shown for geographic context only.", "figure": _district_map(districts), "span": "wide"},
         {"id": "household-stack", "title": "Household head composition", "subtitle": "Stacked count by district", "figure": _household_stack(districts), "span": "side"},
         {"id": "yield", "title": "Maize yield by gender", "subtitle": "Gender filter applies to this panel", "figure": _yield_chart(districts, genders)},
         {"id": "assets", "title": "Asset ownership", "subtitle": "Household asset categories", "figure": _asset_chart()},
