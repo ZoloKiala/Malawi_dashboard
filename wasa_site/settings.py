@@ -32,7 +32,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # XFrameOptionsMiddleware removed so the dashboard can be embedded in the SLWM app.
 ]
 
 ROOT_URLCONF = "wasa_site.urls"
@@ -69,7 +69,15 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {
+        # Plain (un-hashed) storage in local DEBUG so CSS/template edits appear on
+        # browser refresh without re-running collectstatic; compressed+manifest in prod.
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

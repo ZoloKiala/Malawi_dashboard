@@ -563,3 +563,81 @@ a {
     min-height: 300px;
   }
 }
+
+/* ============================================================
+   SLWM embed overrides — brand removed, nav as a vertical
+   floating panel on the right. Placed last so it wins over the
+   base rules and the responsive @media blocks above.
+   ============================================================ */
+.topbar {
+  position: sticky !important;
+  top: 0;
+  display: flex !important;
+  grid-template-columns: none !important;
+  justify-content: flex-end !important;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.25rem clamp(0.6rem, 2vw, 1rem) !important;
+  min-height: 0 !important;
+  z-index: 20;
+}
+
+/* Tighten the empty band at the top now that the brand bar is gone. */
+#page-content { padding-top: 0.5rem !important; }
+.dashboard-hero { margin-bottom: 0.6rem !important; }
+
+.topbar-brand {
+  display: none !important;
+}
+
+/* Nav: vertical floating panel pinned to the right (like the Participatory tab). */
+.top-nav {
+  position: fixed !important;
+  top: 50% !important;
+  right: 14px !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  grid-template-columns: none !important;
+  padding: 10px 8px !important;
+  background: #23351f !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 30px rgba(37, 53, 31, 0.28) !important;
+  z-index: 1000 !important;
+}
+
+.top-nav .rail-link {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 520px) {
+  /* Only on very narrow frames: drop back to an inline horizontal nav. */
+  .top-nav {
+    position: static !important;
+    transform: none !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  .top-nav .rail-link {
+    width: auto !important;
+  }
+  .topbar {
+    justify-content: center !important;
+  }
+}
