@@ -10,6 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+      #scrollHint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1500;width:46px;height:46px;border-radius:50%;background:#1d7b5f;color:#fff;border:0;cursor:pointer;box-shadow:0 8px 22px rgba(37,53,31,.4);display:none;align-items:center;justify-content:center;padding:0;animation:shBounce 1.6s infinite;}
+      #scrollHint:hover{background:#17694f;}
+      #scrollHint svg{width:22px;height:22px;}
+      @keyframes shBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+      @media (prefers-reduced-motion:reduce){#scrollHint{animation:none;}}
+    </style>
   </head>
   <body>
     <header class="topbar">
@@ -152,6 +159,33 @@
         Plotly.newPlot(target, figure.data, figure.layout, plotConfig);
       });
       window.addEventListener("resize", resizePlots);
+
+      // Count-up animation for the KPI numbers.
+      (function(){
+        function animate(el){
+          var raw=(el.textContent||"").trim();
+          var m=raw.match(/^([\d,]+(?:\.\d+)?)(.*)$/); if(!m) return;
+          var target=parseFloat(m[1].replace(/,/g,"")); if(isNaN(target)) return;
+          var suffix=m[2]||"", dec=(m[1].split(".")[1]||"").length, t0=null;
+          function fmt(v){ return (dec?v.toFixed(dec):Math.round(v).toLocaleString())+suffix; }
+          function step(ts){ if(t0==null)t0=ts; var p=Math.min(1,(ts-t0)/900), e=1-Math.pow(1-p,3); el.textContent=fmt(target*e); if(p<1) requestAnimationFrame(step); }
+          requestAnimationFrame(step);
+        }
+        document.querySelectorAll(".kpi-value").forEach(animate);
+      })();
+
+      // Scroll-down hint (down-only; hides at the bottom).
+      (function(){
+        var sh=document.getElementById("scrollHint"); if(!sh) return;
+        function scrollable(){ return document.body.scrollHeight > window.innerHeight + 40; }
+        function atBottom(){ return window.innerHeight + window.scrollY >= document.body.scrollHeight - 40; }
+        function upd(){ sh.style.display=(scrollable() && !atBottom())?"flex":"none"; }
+        sh.addEventListener("click",function(){ window.scrollBy({top:Math.round(window.innerHeight*0.82),behavior:"smooth"}); });
+        window.addEventListener("scroll",upd,{passive:true});
+        window.addEventListener("resize",function(){ setTimeout(upd,80); });
+        setTimeout(upd,400); setTimeout(upd,1200);
+      })();
     </script>
+    <button id="scrollHint" type="button" aria-label="Scroll down for more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
   </body>
 </html>
