@@ -70,7 +70,7 @@ def _asset_chart() -> go.Figure:
     )
     fig.add_bar(
         y=df["Category"], x=df["No"], name="Does not own", orientation="h",
-        marker_color="#E4E9DD", hovertemplate="%{y}<br>%{x:.1f}% do not own<extra></extra>",
+        marker_color="#EEF3F8", hovertemplate="%{y}<br>%{x:.1f}% do not own<extra></extra>",
     )
     fig.update_layout(barmode="stack", height=340, xaxis_title="Share of households")
     fig.update_xaxes(range=[0, 100], ticksuffix="%")
@@ -106,7 +106,7 @@ def _district_map(districts: list[str]) -> go.Figure:
             locations=all_districts,
             z=[1] * len(all_districts),
             featureidkey="properties.NAME_1",
-            colorscale=[[0, "#E8EEE2"], [1, "#E8EEE2"]],
+            colorscale=[[0, "#EEF3F8"], [1, "#EEF3F8"]],
             showscale=False,
             marker_line_color="#FFFFFF",
             marker_line_width=0.7,
@@ -118,7 +118,7 @@ def _district_map(districts: list[str]) -> go.Figure:
         go.Choropleth(
             geojson=geo, locations=df["District"], z=df["Total"],
             featureidkey="properties.NAME_1",
-            colorscale=[[0, "#F2E7C8"], [0.35, "#D1B36A"], [0.7, "#7C9854"], [1, "#2F6B48"]],
+            colorscale=[[0, "#EAF1F8"], [0.35, "#9EC0E0"], [0.7, "#5088C6"], [1, "#28537D"]],
             marker_line_color="#FFFFFF", marker_line_width=0.9,
             colorbar=dict(
                 title="HHs", thickness=10, len=0.6, x=0.98, xanchor="right",
@@ -163,7 +163,7 @@ def _adoption_heatmap(districts: list[str]) -> go.Figure:
     fig = go.Figure(
         go.Heatmap(
             z=df[cols].values, x=cols, y=df["Technology"],
-            colorscale=[[0, "#F7F5EB"], [0.45, "#D1B36A"], [1, PRIMARY]],
+            colorscale=[[0, "#F1F5FA"], [0.5, "#7FA8D0"], [1, PRIMARY]],
             colorbar=dict(title="HHs", thickness=10),
             hovertemplate="%{y}<br>%{x}: %{z} HHs<extra></extra>",
         )
@@ -213,7 +213,7 @@ def _structure_chart(districts: list[str]) -> go.Figure:
         "Child headed", "Female headed de facto", "Female headed single",
         "Male headed single", "Male headed with wife", "Male headed with wives",
     ]
-    colors = ["#8A8F7A", ACCENT, ORANGE, "#A8B889", PRIMARY, NEUTRAL]
+    colors = ["#0297A6", ACCENT, ORANGE, "#46BBD4", PRIMARY, NEUTRAL]
     fig = go.Figure()
     for part, color in zip(parts, colors):
         fig.add_bar(x=df["District"], y=df[part], name=part, marker_color=color)
@@ -224,7 +224,7 @@ def _structure_chart(districts: list[str]) -> go.Figure:
 def _land_chart(districts: list[str]) -> go.Figure:
     df = data.filter_by_district(data.land_holdings, districts)
     parts = ["Food crop area (ha)", "Horticulture area (ha)", "Aquaculture area (ha)", "Fallow area (ha)"]
-    colors = [PRIMARY, "#7C9854", NEUTRAL, "#D1B36A"]
+    colors = [PRIMARY, "#22AD7A", NEUTRAL, "#DD9103"]
     fig = go.Figure()
     for part, color in zip(parts, colors):
         fig.add_bar(x=df["District"], y=df[part], name=part, marker_color=color)
@@ -245,8 +245,8 @@ def _age_education_chart(districts: list[str]) -> go.Figure:
 def _crop_alloc_chart(districts: list[str]) -> go.Figure:
     df = data.filter_by_district(data.crop_allocation, districts)
     colors = {
-        "Maize": PRIMARY, "Groundnuts": "#7C9854", "Soybean": "#8DB8A0",
-        "Sweet Potato": ACCENT, "Cassava": "#D1B36A", "Tobacco": "#8A8F7A", "Cowpea": GREEN,
+        "Maize": PRIMARY, "Groundnuts": "#22AD7A", "Soybean": "#46BBD4",
+        "Sweet Potato": ACCENT, "Cassava": "#DD9103", "Tobacco": "#0297A6", "Cowpea": GREEN,
     }
     fig = go.Figure()
     for crop, color in colors.items():
@@ -259,7 +259,7 @@ def _seasonal_chart(districts: list[str]) -> go.Figure:
     df = data.filter_by_district(data.seasonal_participation, districts)
     fig = go.Figure()
     fig.add_bar(x=df["District"], y=df["Summer (%)"], name="Summer", marker_color=PRIMARY)
-    fig.add_bar(x=df["District"], y=df["Winter (%)"], name="Winter", marker_color="#D1B36A")
+    fig.add_bar(x=df["District"], y=df["Winter (%)"], name="Winter", marker_color="#DD9103")
     fig.update_layout(barmode="group", height=340, yaxis_title="Participation (%)", yaxis=dict(range=[0, 105]))
     return apply_layout(fig)
 
@@ -290,7 +290,7 @@ def _csa_chart(districts: list[str]) -> go.Figure:
     fig = go.Figure()
     fig.add_bar(x=df["District"], y=df["TLC (%)"], name="Total LandCare", marker_color=PRIMARY)
     fig.add_bar(x=df["District"], y=df["CRS (%)"], name="Catholic Relief Services", marker_color=ACCENT)
-    fig.add_bar(x=df["District"], y=df["Other (%)"], name="Other partners", marker_color="#D1B36A")
+    fig.add_bar(x=df["District"], y=df["Other (%)"], name="Other partners", marker_color="#DD9103")
     fig.update_layout(barmode="group", height=360, yaxis_title="CSA-supported HHs (%)")
     return apply_layout(fig)
 
@@ -298,7 +298,7 @@ def _csa_chart(districts: list[str]) -> go.Figure:
 def _priority_radar(districts: list[str]) -> go.Figure:
     df = data.filter_by_district(data.priority_scores, districts)
     dims = ["Productivity", "Adoption", "Food security", "Water access", "Market access", "Inclusion"]
-    colors = [PRIMARY, ACCENT, GREEN, ORANGE, NEUTRAL, "#D1B36A", "#8A8F7A"]
+    colors = [PRIMARY, ACCENT, GREEN, ORANGE, NEUTRAL, "#22AD7A", "#0297A6"]
     fig = go.Figure()
     for i, (_, row) in enumerate(df.iterrows()):
         vals = [row[d] for d in dims] + [row[dims[0]]]
