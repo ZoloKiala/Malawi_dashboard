@@ -19,6 +19,26 @@
     </style>
   </head>
   <body>
+    <!-- IWMI page loader — hidden once the charts have rendered -->
+    <div id="pageLoader" role="status" aria-label="Loading the baseline">
+      <img src="https://branding.iwmi.org/wp-content/uploads/2020/02/logo-blue.png" alt="IWMI" onerror="this.style.display='none'"/>
+      <div class="pl-ring"></div>
+      <div class="pl-text">Loading the baseline…</div>
+    </div>
+    <style>
+    #pageLoader{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:#F4F6F8;transition:opacity .45s ease,visibility .45s;}
+    #pageLoader.pl-hidden{opacity:0;visibility:hidden;pointer-events:none;}
+    #pageLoader img{height:34px;width:auto;}
+    #pageLoader .pl-ring{width:44px;height:44px;border-radius:50%;border:3px solid #E8E7E7;border-top-color:#28537D;animation:pl-spin .8s linear infinite;}
+    @keyframes pl-spin{to{transform:rotate(360deg);}}
+    #pageLoader .pl-text{font-family:"Public Sans",system-ui,Segoe UI,sans-serif;color:#5B6B7A;font-size:13px;letter-spacing:.02em;}
+    @media (prefers-reduced-motion:reduce){#pageLoader .pl-ring{animation:none;}}
+    </style>
+    <script>
+    window.__hideLoader=function(){var p=document.getElementById('pageLoader');if(p&&!p.__h){p.__h=1;p.classList.add('pl-hidden');setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},500);}};
+    window.addEventListener('load',function(){setTimeout(window.__hideLoader,900);});
+    setTimeout(window.__hideLoader,9000);
+    </script>
     <header class="topbar">
       <!-- brand (IWMI logo + WASA Malawi) removed for the SLWM embed -->
 
@@ -158,6 +178,7 @@
         const target = document.getElementById(node.id.replace("-figure", ""));
         Plotly.newPlot(target, figure.data, figure.layout, plotConfig);
       });
+      if (window.__hideLoader) setTimeout(window.__hideLoader, 150);   // charts are drawn
       window.addEventListener("resize", resizePlots);
     </script>
     <button id="scrollHint" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
