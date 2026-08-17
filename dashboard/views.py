@@ -98,22 +98,10 @@ def _district_map(districts: list[str]) -> go.Figure:
         )
         return apply_layout(fig, height=430, xaxis=dict(visible=False), yaxis=dict(visible=False))
 
-    all_districts = [feature["properties"].get("NAME_1") for feature in geo["features"]]
+    # Only the WASA baseline districts are drawn. The non-WASA "context"
+    # districts (Dedza, etc.) were removed so the map shows just the survey area
+    # and non-WASA names can't be mistaken for a WASA district.
     fig = go.Figure()
-    fig.add_trace(
-        go.Choropleth(
-            geojson=geo,
-            locations=all_districts,
-            z=[1] * len(all_districts),
-            featureidkey="properties.NAME_1",
-            colorscale=[[0, "#EEF3F8"], [1, "#EEF3F8"]],
-            showscale=False,
-            marker_line_color="#FFFFFF",
-            marker_line_width=0.7,
-            hovertemplate="<b>%{location}</b><br>No WASA baseline sample<extra></extra>",
-            name="Other districts",
-        )
-    )
     fig.add_trace(
         go.Choropleth(
             geojson=geo, locations=df["District"], z=df["Total"],
@@ -134,7 +122,7 @@ def _district_map(districts: list[str]) -> go.Figure:
         )
     )
     fig.update_geos(
-        fitbounds="geojson", visible=False, bgcolor="rgba(255,255,255,0)",
+        fitbounds="locations", visible=False, bgcolor="rgba(255,255,255,0)",
         showcountries=False, showcoastlines=False, showland=False,
         projection=dict(type="mercator"),
         domain=dict(x=[0, 1], y=[0, 1]),
